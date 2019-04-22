@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "75178467262",
+    "firebase_url": "https://react-native-notificatio-a68c6.firebaseio.com",
+    "project_id": "react-native-notificatio-a68c6",
+    "storage_bucket": "react-native-notificatio-a68c6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:75178467262:android:29e2072b8cc9a5f4",
+        "android_client_info": {
+          "package_name": "com.portal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "75178467262-vc9n9qh0sdh2hib667eccjgrcoq10oeg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAI8z3aa_B8ltWSiaFb84hIvT560wuZrFo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
