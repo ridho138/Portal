@@ -6,32 +6,46 @@ import {
   FlatList,
   ActivityIndicator,
   StyleSheet,
-  TouchableOpacity
+  TouchableOpacity,
+  ScrollView,
+  RefreshControl
 } from "react-native";
 import { serviceGetNotificationsList } from "../utils/Services";
 import Loader from "../components/components/Loader";
 import { toDateTime } from "../utils/Utils";
+import { connect } from "react-redux";
 
 class Notification extends Component {
   constructor(props) {
     super(props);
     this.state = {
       DataNotifications: null,
-      loading: false
+      loading: false,
+      refreshing: false,
     };
   }
 
-  async componentDidMount() {
-    this.setState({
-      loading: true
-    });
-    const NotificationList = await serviceGetNotificationsList();
+  componentDidMount() {
+    this.getNotificationList();
+  }
+
+  getNotificationList = async () => {
+    // this.setState({
+    //   loading: true
+    // });
+    const NotificationList = await serviceGetNotificationsList(this.props.dataLogin);
     if (NotificationList !== "error") {
       this.setState({ DataNotifications: NotificationList });
     }
     this.setState({
-      loading: false
+      // loading: false,
+      refreshing: false
     });
+  };
+
+  _onRefresh = () => {
+    this.setState({refreshing: true});
+    this.getNotificationList();
   }
 
   onButtonPress = item => {
@@ -40,7 +54,14 @@ class Notification extends Component {
 
   render() {
     return (
-      <View>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={this.state.refreshing}
+            onRefresh={this._onRefresh}
+          />
+        }
+      >
         <Loader loading={this.state.loading} />
         <FlatList
           data={this.state.DataNotifications}
@@ -54,7 +75,7 @@ class Notification extends Component {
           )}
           keyExtractor={item => item.ID.toString()}
         />
-      </View>
+      </ScrollView>
     );
   }
 }
@@ -67,13 +88,13 @@ const styles = StyleSheet.create({
     padding: 10
   },
   title: {
-    color: "#192C4D",
+    color: "#06397B",
     justifyContent: "center",
     fontWeight: "600",
     fontSize: 16
   },
   description: {
-    color: "#192C4D",
+    color: "#06397B",
     justifyContent: "center",
     fontSize: 15
   },
@@ -85,4 +106,12 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Notification;
+
+const mapStateToProps = state => {
+  //console.log(state.dataLogin);
+  return {
+    dataLogin: state.dataLogin.dataLogin
+  };
+};
+
+export default connect(mapStateToProps) (Notification);

@@ -16,17 +16,23 @@ import Button from "../components/components/Button";
 import AttendanceDetail from "./AttendanceDetail";
 import Loader from "../components/components/Loader";
 import { serviceGetAttendaceList } from "../utils/Services";
+import moment from "moment";
+import { connect } from "react-redux";
 
 class Attendance extends Component {
   constructor(props) {
     super(props);
     //set value in state for initial date
     this.state = {
-      dateFrom: "",
-      dateTo: "",
+      dateFrom: moment(new Date()).format("YYYY-MM-DD"),
+      dateTo: moment(new Date()).format("YYYY-MM-DD"),
       loading: false,
       dataAbsen: null
     };
+  }
+
+  componentDidMount() {
+    this.onButtonPress();
   }
 
   onButtonPress = async () => {
@@ -36,7 +42,7 @@ class Attendance extends Component {
 
     const { dateFrom, dateTo } = this.state;
     if (dateFrom !== "" || dateTo !== "") {
-      const getDataAbsen = await serviceGetAttendaceList(dateFrom, dateTo);
+      const getDataAbsen = await serviceGetAttendaceList(dateFrom, dateTo, this.props.dataLogin);
       // alert(getDataAbsen)
       if (getDataAbsen !== "error") {
         this.setState({
@@ -55,25 +61,28 @@ class Attendance extends Component {
   renderDataAbsen = () => {
     // return <AttendanceDetail key={data.tanggal} dataAbsen={data} />;
     if (this.state.dataAbsen !== null) {
-      return (
-        <Card>
-          <CardSection>
-            <FlatList
-              //style={{ paddingBottom: 20 }}
-              data={this.state.dataAbsen}
-              showsVerticalScrollIndicator={false}
-              renderItem={({ item }) => (
-                <AttendanceDetail key={item.tanggal} dataAbsen={item} />
-              )}
-              keyExtractor={item => item.tanggal}
-            />
-          </CardSection>
-        </Card>
-      );
+      if (this.state.dataAbsen.length !== 0) {
+        return (
+          <Card>
+            <CardSection>
+              <FlatList
+                //style={{ paddingBottom: 20 }}
+                data={this.state.dataAbsen}
+                showsVerticalScrollIndicator={false}
+                renderItem={({ item }) => (
+                  <AttendanceDetail key={item.tanggal} dataAbsen={item} />
+                )}
+                keyExtractor={item => item.tanggal}
+              />
+            </CardSection>
+          </Card>
+        );
+      }
     }
   };
 
   render() {
+    
     return (
       <View style={{ flex: 1, flexDirection: "column" }}>
         <Loader loading={this.state.loading} />
@@ -84,9 +93,9 @@ class Attendance extends Component {
                 <View style={styles.datePickerContent}>
                   <DatePicker
                     customStyles={{
-                      dateInput:{
-                        borderRadius:5,
-                        borderColor:'#192C4D',
+                      dateInput: {
+                        borderRadius: 5,
+                        borderColor: "#06397B"
                       }
                     }}
                     date={this.state.dateFrom} //initial date from state
@@ -104,9 +113,9 @@ class Attendance extends Component {
                 <View style={styles.datePickerContent}>
                   <DatePicker
                     customStyles={{
-                      dateInput:{
-                        borderRadius:5,
-                        borderColor:'#192C4D',
+                      dateInput: {
+                        borderRadius: 5,
+                        borderColor: "#06397B"
                       }
                     }}
                     date={this.state.dateTo} //initial date from state
@@ -161,14 +170,21 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   buttonContainer: {
-    backgroundColor: "#997A2D",
+    backgroundColor: "#fff",
     paddingVertical: 15
   },
   buttonText: {
-    color: "#192C4D",
+    color: "#06397B",
     textAlign: "center",
     fontWeight: "700"
   }
 });
 
-export default Attendance;
+const mapStateToProps = state => {
+  //console.log(state.dataLogin);
+  return {
+    dataLogin: state.dataLogin.dataLogin
+  };
+};
+
+export default connect(mapStateToProps)(Attendance);

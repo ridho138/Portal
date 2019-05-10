@@ -1,6 +1,6 @@
 const Constants = {
   applicationType: "PORTAL",
-  wsUrl: "http://uat-app.mnc-insurance.com/goreact/webservice.asmx/",
+  wsUrl: "http://app.mnc-insurance.com/wsmnciers/webservice.asmx/",
   wsLogin: "Login?",
   wsGetAttendanceList: "GetAttandance?",
   wsGetNotificationsList: "GetNotifications?",

@@ -7,15 +7,19 @@ import {
   KeyboardAvoidingView,
   StatusBar,
   TouchableOpacity,
-  TextInput,
-  Alert
+  Alert,
+  Dimensions
 } from "react-native";
+import TextInput from "react-native-textinput-with-icons";
 import { ServiceLogin } from "../utils/Services";
 import Loader from "../components/components/Loader";
 import { getData, setData } from "../utils/Utils";
 import { Constants } from "../utils/Constants";
 import AsyncStorage from "@react-native-community/async-storage";
 import firebase from "react-native-firebase";
+import { CheckBox } from "react-native-elements";
+import { connect } from "react-redux";
+import { fetchDataLogin, fetchProfile } from "../actions/index";
 
 // create a component
 class Login extends Component {
@@ -26,15 +30,28 @@ class Login extends Component {
       password: "",
       registrationId: "",
       loading: false,
-      dataUser: null
+      dataUser: null,
+      checked: false,
+      viewPassword: false
     };
   }
 
   async componentDidMount() {
     this.checkPermission();
     console.log("cek -> componentDidMount");
+    console.log(this.props.dataLogin);
+    if (this.props.dataLogin !== null) {
+      const { uid, password, rememberMe } = this.props.dataLogin;
+      console.log(this.props.dataLogin);
+      if (rememberMe) {
+        this.setState({
+          uid:  uid ,
+          password:  password ,
+          checked: rememberMe
+        });
+      }
+    }
   }
-
 
   async checkPermission() {
     const enabled = await firebase.messaging().hasPermission();
@@ -42,28 +59,27 @@ class Login extends Component {
     if (enabled) {
       console.log("cek -> checkPermission 2");
       this.getToken();
-      
     } else {
       console.log("cek -> checkPermission 3");
       this.requestPermission();
-      
     }
   }
 
   //3
   async getToken() {
+    await AsyncStorage.removeItem("fcmToken");
     let fcmToken = await AsyncStorage.getItem("fcmToken");
     console.log("cek -> getToken 1");
     if (!fcmToken) {
       console.log("cek -> getToken 2");
       fcmToken = await firebase.iid().getToken();
-      this.setState({ registrationId: fcmToken });
+      //this.setState({ registrationId: fcmToken });
       console.log("cek -> getToken 3");
       if (fcmToken) {
         // user has a device token
         console.log("cek -> getToken 4");
         await AsyncStorage.setItem("fcmToken", fcmToken);
-        // this.setState({ registrationId: fcmToken });
+        this.setState({ registrationId: fcmToken });
         console.log("No Token");
         console.log(fcmToken);
       }
@@ -91,28 +107,38 @@ class Login extends Component {
       loading: true
     });
 
-    const dataUser = {
-      uid: this.state.uid,
-      password: this.state.password,
-      registrationId: this.state.registrationId
-    };
+    const { uid, password, registrationId, checked } = this.state;
 
-    const login = await ServiceLogin(dataUser);
-    // setData(Constants.KEY_USER_ID, dataUser.uid);
-    // setData(Constants.KEY_PASSWORD, dataUser.password);
-    //alert(login)
-    this.setState({
-      loading: false
-    });
-    if (login === "SUCCESS") {
-      this.props.navigation.navigate("Home");
-    } else {
-      Alert.alert("Error",login)
+    if(uid !== "" && password !== ""){
+      const dataUser = {
+        uid: uid,
+        password: password,
+        registrationId: registrationId,
+        rememberMe: checked
+      };
+  
+      const login = await ServiceLogin(dataUser,"1");
+      this.setState({
+        loading: false
+      });
+      if (login.status === "SUCCESS") {
+        this.props.dispatch(fetchDataLogin(dataUser));
+        this.props.dispatch(fetchProfile(login.profile));
+        this.props.navigation.navigate("Home");
+      } else {
+        Alert.alert("Error", login.status);
+      }
+    }else{
+      this.setState({
+        loading: false
+      });
+      Alert.alert("Error", "NIK and/or Password cannot be empty.");
     }
+
+    
   };
 
   render() {
-    
     return (
       <KeyboardAvoidingView behavior="padding" style={styles.container}>
         <Loader loading={this.state.loading} />
@@ -121,32 +147,71 @@ class Login extends Component {
           <Image
             resizeMode="contain"
             style={styles.logo}
-            source={require("../components/images/logo-dark-bg.png")}
+            source={require("../components/images/logo-white.png")}
           />
         </View>
         <View style={styles.formContainer}>
           <StatusBar barStyle="light-content" />
+
           <TextInput
             style={styles.input}
-            autoCapitalize="none"
-            onSubmitEditing={() => this.passwordInput.focus()}
             autoCorrect={false}
             keyboardType="numeric"
-            returnKeyType="next"
-            placeholder="NIK"
-            placeholderTextColor="rgba(225,225,225,0.7)"
+            label="NIK"
+            labelColor="#fff"
+            color="#fff"
+            activeColor="#fff"
+            underlineColor="#fff"
+            leftIcon="user"
+            leftIconType="awesome"
+            leftIconSize={30}
+            leftIconColor="#fff"
             onChangeText={value => this.setState({ uid: value })}
+            value={this.state.uid}
           />
 
           <TextInput
             style={styles.input}
-            returnKeyType="go"
-            ref={input => (this.passwordInput = input)}
-            placeholder="Password"
-            placeholderTextColor="rgba(225,225,225,0.7)"
-            secureTextEntry
+            label="Password"
+            labelColor="#fff"
+            color="#fff"
+            activeColor="#fff"
+            underlineColor="#fff"
+            leftIcon="lock"
+            leftIconType="awesome"
+            leftIconSize={30}
+            leftIconColor="#fff"
+            rightIcon={this.state.viewPassword ? "eye" : "eye-slash"}
+            rightIconType="awesome"
+            rightIconSize={20}
+            rightIconColor="#ccc"
+            onPressRightIcon={() => {
+              this.state.viewPassword
+                ? this.setState({ viewPassword: false })
+                : this.setState({ viewPassword: true });
+            }}
+            secureTextEntry={!this.state.viewPassword}
             onChangeText={value => this.setState({ password: value })}
+            value={this.state.password}
           />
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "flex-start",
+              width: Dimensions.get("window").width - 50
+            }}
+          >
+            <CheckBox
+              title="Remember me"
+              checked={this.state.checked}
+              containerStyle={{ backgroundColor: undefined, borderWidth: 0 }}
+              textStyle={{ color: "#fff" }}
+              checkedColor="#fff"
+              uncheckedColor="#fff"
+              onPress={() => this.setState({ checked: !this.state.checked })}
+            />
+          </View>
+
           <TouchableOpacity
             style={styles.buttonContainer}
             onPress={this.onButtonPress}
@@ -163,13 +228,13 @@ class Login extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#192C4D"
+    backgroundColor: "#06397B"
   },
   loginContainer: {
     alignItems: "center",
     // flexGrow: 1,
     flex: 1,
-    justifyContent: "center"
+    justifyContent: "flex-end"
   },
   logo: {
     position: "absolute",
@@ -184,26 +249,40 @@ const styles = StyleSheet.create({
     opacity: 0.9
   },
   formContainer: {
-    flex: 1,
-    padding: 20
+    flex: 2,
+    padding: 20,
+    alignItems: "center",
+    justifyContent: "flex-start"
   },
   input: {
-    height: 40,
-    backgroundColor: "rgba(225,225,225,0.2)",
-    marginBottom: 10,
-    padding: 10,
-    color: "#fff"
+    height: 60,
+    width: Dimensions.get("window").width - 50
+    // backgroundColor: "#fff",
+    // marginBottom: 30,
+    // padding: 10,
+    // color: "#000",
+    // borderRadius: 30
   },
   buttonContainer: {
     backgroundColor: "#997A2D",
-    paddingVertical: 15
+    borderRadius: 30,
+    paddingVertical: 8,
+    width: 150,
+    elevation: 5
   },
   buttonText: {
-    color: "#192C4D",
+    color: "#fff",
     textAlign: "center",
     fontWeight: "700"
   }
 });
 
+const mapStateToProps = state => {
+  //console.log(state.dataLogin);
+  return {
+    dataLogin: state.dataLogin.dataLogin
+  };
+};
+
 //make this component available to the app
-export default Login;
+export default connect(mapStateToProps)(Login);

@@ -50,11 +50,11 @@ const styles = StyleSheet.create({
         color: '#fff'
     },
     buttonContainer:{
-        backgroundColor: '#997A2D',
+        backgroundColor: '#fff',
         paddingVertical: 15
     },
     buttonText:{
-        color: '#192C4D',
+        color: '#06397B',
         textAlign: 'center',
         fontWeight: '700'
     }, 

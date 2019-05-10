@@ -5,7 +5,8 @@ import {
   View,
   StyleSheet,
   Image,
-  TouchableOpacity
+  TouchableOpacity,
+  Alert
 } from "react-native";
 import { Constants } from "../utils/Constants";
 import { clearData, getData } from "../utils/Utils";
@@ -14,26 +15,16 @@ import AsyncStorage from "@react-native-community/async-storage";
 import Card from "../components/components/Card";
 import CardSection from "../components/components/CardSection";
 import Button from "../components/components/Button";
+import { connect } from "react-redux";
+import { fetchDataLogin } from "../actions/index";
+import { ServiceLogin } from "../utils/Services";
 
 class Profile extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading: false,
-      dataUser: {
-        FULLNAME: "-",
-        EMAIL: "-",
-        DEPARTMENT: "-",
-        POSITION: "-"
-      }
+      loading: false
     };
-  }
-
-  async componentWillMount() {
-    const user = await getData(Constants.KEY_DATA_USER);
-    this.setState({ dataUser: user });
-    // console.log(this.state.dataUser.FULLNAME);
-    // console.log(this.state.dataUser.EMAIL);
   }
 
   onButtonPress = async () => {
@@ -44,11 +35,36 @@ class Profile extends Component {
     await clearData(Constants.KEY_DATA_USER);
     await clearData("fcmToken");
 
-    this.setState({
-      loading: false
-    });
+    const { uid, password, rememberMe } = this.props.dataLogin;
 
-    this.props.navigation.navigate("Login");
+    let dataUser = {
+      uid: uid,
+      password: password,
+      registrationId: "",
+      rememberMe: true
+    };
+    const logout = await ServiceLogin(dataUser, "0");
+
+    if (!rememberMe) {
+      dataUser = {
+        uid: "",
+        password: "",
+        registrationId: "",
+        rememberMe: false
+      };
+    }
+
+    if (logout.status === "SUCCESS") {
+      this.setState({
+        loading: false
+      });
+
+      this.props.dispatch(fetchDataLogin(dataUser));
+
+      this.props.navigation.navigate("Login");
+    } else {
+      Alert.alert("Error", login);
+    }
   };
 
   renderDataProfile = async () => {
@@ -57,6 +73,7 @@ class Profile extends Component {
   };
 
   render() {
+    const { FULLNAME, EMAIL, DEPARTMENT, POSITION } = this.props.dataProfile
     return (
       <Card>
         <CardSection>
@@ -70,11 +87,11 @@ class Profile extends Component {
               />
             </View>
             <View style={styles.rightContent}>
-              <Text style={styles.name}>{this.state.dataUser.FULLNAME}</Text>
-              <Text style={styles.userInfo}>{this.state.dataUser.EMAIL}</Text>
+              <Text style={styles.name}>{FULLNAME}</Text>
+              <Text style={styles.userInfo}>{EMAIL}</Text>
               <Text style={styles.userInfo}>
-                {this.state.dataUser.DEPARTMENT} /{" "}
-                {this.state.dataUser.POSITION}
+                {DEPARTMENT} /{" "}
+                {POSITION}
               </Text>
             </View>
           </View>
@@ -110,17 +127,25 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 63,
     borderWidth: 1,
-    borderColor: "#192C4D"
+    borderColor: "#06397B"
   },
   name: {
     fontSize: 18,
-    color: "#192C4D",
+    color: "#06397B",
     fontWeight: "600"
   },
   userInfo: {
     fontSize: 12,
-    color: "#192C4D"
+    color: "#06397B"
   }
 });
 
-export default Profile;
+const mapStateToProps = state => {
+  //console.log(state.dataLogin);
+  return {
+    dataLogin: state.dataLogin.dataLogin,
+    dataProfile: state.dataProfile.dataProfile
+  };
+};
+
+export default connect(mapStateToProps)(Profile);

@@ -1,8 +1,7 @@
-import axios from "axios";
 import { Constants } from "./Constants";
 import { setData, getData } from "./Utils";
 
-const ServiceLogin = async dataUser => {
+const ServiceLogin = async (dataUser, isLogin) => {
   const { wsUrl, wsLogin, applicationType, KEY_DATA_USER } = Constants;
 
   const { uid, password, registrationId } = dataUser;
@@ -16,38 +15,45 @@ const ServiceLogin = async dataUser => {
     password +
     "&registrationId=" +
     registrationId +
+    "&isLogin=" +
+    isLogin +
     "&applicationtype=" +
     applicationType;
   //const url = 'http://uat-app.mnc-insurance.com/goreact/webservice.asmx/Login?uid=18018651&password=138381813&registrationId=&applicationtype=PORTAL'
 
-  let result;
-  console.log(url)
+  let result = {};
+  console.log(url);
   try {
     const response = await fetch(url);
     if (!response.ok) {
       throw Error(response.statusText);
     }
     const json = await response.json();
-    console.log("json")
-    console.log(json)
-    if(json[0] != null || json != ""){
+    console.log("json");
+    console.log(json);
+    if (json[0] != null || json != "") {
       setData(KEY_DATA_USER, JSON.stringify(json[0]));
-      console.log(json[0])
-      result = "SUCCESS";
+      console.log(json[0]);
+
+      result = {
+        status: "SUCCESS",
+        profile: json[0]
+      };
+    } else {
+      result = {
+        status: "Invalid NIK and/or Password"
+      };
     }
-    else{
-      result = "Invalid NIK and/or Password";
-    }
-    
   } catch (error) {
-    result = "Something went wrong. Please check your NIK/Password";
-    // result = error
+    result = {
+      status: "Something went wrong. Please check your NIK/Password"
+    };
   }
-  console.log(result)
+  console.log(result);
   return result;
 };
 
-const serviceGetAttendaceList = async (datefrom, dateto) => {
+const serviceGetAttendaceList = async (datefrom, dateto, dataUser) => {
   const {
     wsUrl,
     wsGetAttendanceList,
@@ -55,8 +61,8 @@ const serviceGetAttendaceList = async (datefrom, dateto) => {
     KEY_USER_ID,
     KEY_PASSWORD
   } = Constants;
-  const uid = "18018651"; //getData(KEY_USER_ID)
-  const password = getData(KEY_PASSWORD);
+  const uid = dataUser.uid; //getData(KEY_USER_ID)
+  const password = dataUser.password;
   const url =
     wsUrl +
     wsGetAttendanceList +
@@ -91,22 +97,15 @@ const serviceGetAttendaceList = async (datefrom, dateto) => {
   return result;
 };
 
-const serviceGetNotificationsList = async () => {
-  const {
-    wsUrl,
-    wsGetNotificationsList,
-    applicationType,
-    KEY_USER_ID,
-    KEY_PASSWORD,
-    KEY_DATA_USER
-  } = Constants;
-  const { UCODE } = await getData(KEY_DATA_USER)
-  const password = getData(KEY_PASSWORD);
+const serviceGetNotificationsList = async dataUser => {
+  const { wsUrl, wsGetNotificationsList, applicationType } = Constants;
+  const uid = dataUser.uid; //getData(KEY_USER_ID)
+  const password = dataUser.password; //getData(KEY_PASSWORD);
   const url =
     wsUrl +
     wsGetNotificationsList +
     "uid=" +
-    UCODE +
+    uid +
     "&password=" +
     password +
     "&applicationtype=" +
@@ -131,16 +130,10 @@ const serviceGetNotificationsList = async () => {
   return result;
 };
 
-const serviceGetStaffContactList = async keyword => {
-  const {
-    wsUrl,
-    wsGetStaffContactList,
-    applicationType,
-    KEY_USER_ID,
-    KEY_PASSWORD
-  } = Constants;
-  const uid = "18018651"; //getData(KEY_USER_ID)
-  const password = "138381813"//getData(KEY_PASSWORD);
+const serviceGetStaffContactList = async (keyword, dataUser) => {
+  const { wsUrl, wsGetStaffContactList, applicationType } = Constants;
+  const uid = dataUser.uid; //getData(KEY_USER_ID)
+  const password = dataUser.password; //getData(KEY_PASSWORD);
   const url =
     wsUrl +
     wsGetStaffContactList +

@@ -26,7 +26,7 @@ class SplashScreen extends Component {
           <Image
             resizeMode="contain"
             style={styles.logo}
-            source={require("../components/images/logo-dark-bg.png")}
+            source={require("../components/images/logo-white.png")}
           />
         </View>
       </KeyboardAvoidingView>
@@ -38,7 +38,7 @@ class SplashScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#192C4D"
+    backgroundColor: "#06397B"
   },
   loginContainer: {
     alignItems: "center",

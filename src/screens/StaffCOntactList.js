@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     padding: 5
   },
   textStyle: {
-    color: "#192C4D",
+    color: "#06397B",
     fontSize: 13,
     fontWeight: "300"
   }

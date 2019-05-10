@@ -17,6 +17,7 @@ import Button from "../components/components/Button";
 import StaffCOntactList from "./StaffCOntactList";
 import Loader from "../components/components/Loader";
 import { serviceGetStaffContactList } from "../utils/Services";
+import { connect } from "react-redux";
 
 class Attendance extends Component {
   constructor(props) {
@@ -35,7 +36,7 @@ class Attendance extends Component {
     });
 
     const { keyword } = this.state;
-    const getDataStaffContact = await serviceGetStaffContactList(keyword);
+    const getDataStaffContact = await serviceGetStaffContactList(keyword, this.props.dataLogin);
     //alert(getDataStaffContact[0].fullname);
     if (getDataStaffContact !== "error") {
       this.setState({
@@ -95,7 +96,7 @@ class Attendance extends Component {
                 style={styles.searchIcon}
                 name="arrow-right"
                 size={25}
-                color="#192C4D"
+                color="#06397B"
                 onPress={() => this.onButtonPress()}
               />
             </View>
@@ -130,8 +131,15 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     paddingLeft: 0,
     backgroundColor: "#fff",
-    color: "#192C4D"
+    color: "#06397B"
   }
 });
 
-export default Attendance;
+const mapStateToProps = state => {
+  //console.log(state.dataLogin);
+  return {
+    dataLogin: state.dataLogin.dataLogin
+  };
+};
+
+export default connect(mapStateToProps) (Attendance);
