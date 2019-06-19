@@ -6,7 +6,8 @@ import {
   Dimensions,
   TouchableOpacity,
   ScrollView,
-  FlatList
+  FlatList,
+  Alert
 } from "react-native";
 import Card from "../components/components/Card";
 import CardSection from "../components/components/CardSection";
@@ -17,7 +18,6 @@ import AttendanceDetail from "./AttendanceDetail";
 import Loader from "../components/components/Loader";
 import { serviceGetAttendaceList } from "../utils/Services";
 import moment from "moment";
-import { connect } from "react-redux";
 
 class Attendance extends Component {
   constructor(props) {
@@ -27,7 +27,8 @@ class Attendance extends Component {
       dateFrom: moment(new Date()).format("YYYY-MM-DD"),
       dateTo: moment(new Date()).format("YYYY-MM-DD"),
       loading: false,
-      dataAbsen: null
+      dataAbsen: null,
+      late: 0
     };
   }
 
@@ -41,16 +42,29 @@ class Attendance extends Component {
     });
 
     const { dateFrom, dateTo } = this.state;
-    if (dateFrom !== "" || dateTo !== "") {
-      const getDataAbsen = await serviceGetAttendaceList(dateFrom, dateTo, this.props.dataLogin);
-      // alert(getDataAbsen)
-      if (getDataAbsen !== "error") {
-        this.setState({
-          dataAbsen: getDataAbsen
-        });
+    let diff = moment(dateTo).diff(moment(dateFrom), "days");
+
+    if (dateFrom !== "" && dateTo !== "") {
+      if (diff < 31) {
+        const getDataAbsen = await serviceGetAttendaceList(dateFrom, dateTo);
+        // alert(getDataAbsen)
+        if (getDataAbsen !== "error") {
+          let late = 0;
+          getDataAbsen.map(data => {
+            if (data.istelat === "Late") {
+              late += 1;
+            }
+          });
+          this.setState({
+            dataAbsen: getDataAbsen,
+            late: late
+          });
+        }
+      } else {
+        Alert.alert("Info", "Maksimum periode absen adalah 31 hari");
       }
     } else {
-      alert("Date Tidak Boleh Kosong");
+      Alert.alert("Error", "Date Tidak Boleh Kosong");
     }
 
     this.setState({
@@ -82,11 +96,10 @@ class Attendance extends Component {
   };
 
   render() {
-    
     return (
       <View style={{ flex: 1, flexDirection: "column" }}>
         <Loader loading={this.state.loading} />
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 2 }}>
           <Card>
             <CardSection>
               <View style={styles.datePickerContainer}>
@@ -137,7 +150,16 @@ class Attendance extends Component {
             </CardSection>
           </Card>
         </View>
-        <View style={{ flex: 4 }}>{this.renderDataAbsen()}</View>
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <Card>
+            <CardSection>
+              <Text style={styles.textStyle}>
+                Total Late : {this.state.late}
+              </Text>
+            </CardSection>
+          </Card>
+        </View>
+        <View style={{ flex: 7 }}>{this.renderDataAbsen()}</View>
 
         {/* <ScrollView style={{ paddingBottom: 15 }}>
           {this.renderDataAbsen()}
@@ -177,14 +199,12 @@ const styles = StyleSheet.create({
     color: "#06397B",
     textAlign: "center",
     fontWeight: "700"
+  },
+  textStyle: {
+    color: "#06397B",
+    fontSize: 13,
+    fontWeight: "300"
   }
 });
 
-const mapStateToProps = state => {
-  //console.log(state.dataLogin);
-  return {
-    dataLogin: state.dataLogin.dataLogin
-  };
-};
-
-export default connect(mapStateToProps)(Attendance);
+export default Attendance;

@@ -16,6 +16,11 @@ import Notification from "../screens/Notification";
 import Profile from "../screens/Profile";
 import Attendance from "../screens/Attendance";
 import StaffContact from "../screens/StaffContact";
+import NotificationDetail from "../screens/NotificationDetail"
+import withBadge from "../components/components/withBadge";
+import { notifCount } from "../utils/Utils"
+
+//const BadgedIcon = withBadge(notifCount)(Icon);
 
 const TabNavigator = createMaterialTopTabNavigator(
   {
@@ -40,6 +45,7 @@ const TabNavigator = createMaterialTopTabNavigator(
       navigationOptions: () => ({
         tabBarIcon: ({ tintColor }) => (
           <Icon name="envelope" color={tintColor} size={25} />
+          // <BadgedIcon name="envelope" color={tintColor} size={25} />
         )
       })
     }
@@ -120,7 +126,8 @@ const AppStackNavigator = createStackNavigator(
       })
     },
     Attendance: { screen: Attendance },
-    StaffContact: { screen: StaffContact }
+    "Staff Contact": { screen: StaffContact },
+    "News Detail": { screen: NotificationDetail }
   },
   {
     defaultNavigationOptions: ({ navigation }) => {

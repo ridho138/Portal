@@ -1,5 +1,12 @@
 import { combineReducers } from "redux";
-import { FETCH_DATA, FETCH_DATA_LOGIN, FETCH_PROFILE } from "../actions/index";
+import { PENDING, FULFILLED, REJECTED } from 'redux-promise-middleware'
+import {
+  FETCH_DATA,
+  FETCH_DATA_LOGIN,
+  FETCH_PROFILE,
+  FETCH_NOTIFICATION,
+  FETCH_NOTIFICATION_HEADER
+} from "../actions/index";
 
 export const data = (
   state = {
@@ -45,9 +52,52 @@ export const dataProfile = (state = { dataProfile: {} }, action) => {
   }
 };
 
+export const dataNotificationHeader = (state = { data: {} }, action) => {
+  switch (action.type) {
+    case FETCH_NOTIFICATION_HEADER:
+      return {
+        ...state,
+        data: action.payload
+      };
+    //   case `${FETCH_NOTIFICATION_HEADER}_${PENDING}`:
+    //   return {
+    //     ...state
+    //   }
+
+    // case `${FETCH_NOTIFICATION_HEADER}_${FULFILLED}`:
+    //   return {
+    //     ...state,
+    //     data: action.payload
+    //   }
+
+    // case `${FETCH_NOTIFICATION_HEADER}_${REJECTED}`:
+    //   return {
+    //     ...state,
+    //   }
+
+    default:
+      return state;
+  }
+};
+
+export const dataNotification = (state = { data: {} }, action) => {
+  switch (action.type) {
+    case `${FETCH_NOTIFICATION}`:
+      return {
+        ...state,
+        data: action.payload
+      };
+
+    default:
+      return state;
+  }
+};
+
 const rootReducer = combineReducers({
   dataLogin: dataLogin,
-  dataProfile: dataProfile
+  dataProfile: dataProfile,
+  dataNotificationHeader: dataNotificationHeader,
+  dataNotification: dataNotification
 });
 
 export default rootReducer;

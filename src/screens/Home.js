@@ -165,7 +165,7 @@ class Home extends Component {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.card}
-            onPress={() => this.onMenuPress("StaffContact")}
+            onPress={() => this.onMenuPress("Staff Contact")}
           >
             <View>
               <View

@@ -1,3 +1,5 @@
+import { serviceGetNotificationsList } from "../utils/Services"
+
 export const FETCH_DATA = 'FETCH_DATA'
 export const fetchData = () => {
   return {
@@ -17,6 +19,23 @@ export const FETCH_PROFILE = 'FETCH_PROFILE'
 export const fetchProfile = (value) => {
   return {
     type: FETCH_PROFILE,
+    payload: value
+  }
+}
+
+export const FETCH_NOTIFICATION_HEADER = 'FETCH_NOTIFICATION_HEADER'
+export const fetchNotificationHeader = () => {
+  return {
+    type: FETCH_NOTIFICATION_HEADER,
+    payload: serviceGetNotificationsList()
+  }
+}
+
+
+export const FETCH_NOTIFICATION = 'FETCH_NOTIFICATION'
+export const fetchNotification = (value) => {
+  return {
+    type: FETCH_NOTIFICATION,
     payload: value
   }
 }

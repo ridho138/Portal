@@ -18,8 +18,6 @@ import { Constants } from "../utils/Constants";
 import AsyncStorage from "@react-native-community/async-storage";
 import firebase from "react-native-firebase";
 import { CheckBox } from "react-native-elements";
-import { connect } from "react-redux";
-import { fetchDataLogin, fetchProfile } from "../actions/index";
 
 // create a component
 class Login extends Component {
@@ -39,18 +37,21 @@ class Login extends Component {
   async componentDidMount() {
     this.checkPermission();
     console.log("cek -> componentDidMount");
-    console.log(this.props.dataLogin);
-    if (this.props.dataLogin !== null) {
-      const { uid, password, rememberMe } = this.props.dataLogin;
-      console.log(this.props.dataLogin);
-      if (rememberMe) {
+    
+    const dataLogin = await getData(Constants.KEY_DATA_USER)
+    console.log("dataLogin");
+    console.log(dataLogin);
+    if(dataLogin){
+      if (dataLogin.rememberMe) {
         this.setState({
-          uid:  uid ,
-          password:  password ,
-          checked: rememberMe
+          uid: dataLogin.uid,
+          password: dataLogin.password,
+          checked: dataLogin.rememberMe
         });
       }
     }
+
+
   }
 
   async checkPermission() {
@@ -101,41 +102,37 @@ class Login extends Component {
   }
 
   onButtonPress = async () => {
-    console.log("No Teken");
-    console.log(this.state.registrationId);
+    
     this.setState({
       loading: true
     });
 
     const { uid, password, registrationId, checked } = this.state;
 
-    if(uid !== "" && password !== ""){
+    if (uid !== "" && password !== "") {
       const dataUser = {
         uid: uid,
         password: password,
         registrationId: registrationId,
         rememberMe: checked
       };
-  
-      const login = await ServiceLogin(dataUser,"1");
+
+      const login = await ServiceLogin(dataUser, "1");
       this.setState({
         loading: false
       });
       if (login.status === "SUCCESS") {
-        this.props.dispatch(fetchDataLogin(dataUser));
-        this.props.dispatch(fetchProfile(login.profile));
+        
         this.props.navigation.navigate("Home");
       } else {
         Alert.alert("Error", login.status);
       }
-    }else{
+    } else {
       this.setState({
         loading: false
       });
       Alert.alert("Error", "NIK and/or Password cannot be empty.");
     }
-
-    
   };
 
   render() {
@@ -277,12 +274,5 @@ const styles = StyleSheet.create({
   }
 });
 
-const mapStateToProps = state => {
-  //console.log(state.dataLogin);
-  return {
-    dataLogin: state.dataLogin.dataLogin
-  };
-};
-
 //make this component available to the app
-export default connect(mapStateToProps)(Login);
+export default Login;

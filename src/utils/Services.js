@@ -22,23 +22,23 @@ const ServiceLogin = async (dataUser, isLogin) => {
   //const url = 'http://uat-app.mnc-insurance.com/goreact/webservice.asmx/Login?uid=18018651&password=138381813&registrationId=&applicationtype=PORTAL'
 
   let result = {};
-  console.log(url);
+
   try {
     const response = await fetch(url);
     if (!response.ok) {
       throw Error(response.statusText);
     }
     const json = await response.json();
-    console.log("json");
-    console.log(json);
-    if (json[0] != null || json != "") {
-      setData(KEY_DATA_USER, JSON.stringify(json[0]));
-      console.log(json[0]);
 
+    if (json[0] != null || json != "") {
       result = {
+        ...dataUser,
+        isLogin: isLogin,
         status: "SUCCESS",
         profile: json[0]
       };
+      
+      await setData(KEY_DATA_USER, JSON.stringify(result));
     } else {
       result = {
         status: "Invalid NIK and/or Password"
@@ -49,20 +49,19 @@ const ServiceLogin = async (dataUser, isLogin) => {
       status: "Something went wrong. Please check your NIK/Password"
     };
   }
+  console.log("result");
   console.log(result);
   return result;
 };
 
-const serviceGetAttendaceList = async (datefrom, dateto, dataUser) => {
+const serviceGetAttendaceList = async (datefrom, dateto) => {
   const {
     wsUrl,
     wsGetAttendanceList,
     applicationType,
-    KEY_USER_ID,
-    KEY_PASSWORD
+    KEY_DATA_USER
   } = Constants;
-  const uid = dataUser.uid; //getData(KEY_USER_ID)
-  const password = dataUser.password;
+  const { uid, password } = await getData(KEY_DATA_USER);
   const url =
     wsUrl +
     wsGetAttendanceList +
@@ -97,10 +96,16 @@ const serviceGetAttendaceList = async (datefrom, dateto, dataUser) => {
   return result;
 };
 
-const serviceGetNotificationsList = async dataUser => {
-  const { wsUrl, wsGetNotificationsList, applicationType } = Constants;
-  const uid = dataUser.uid; //getData(KEY_USER_ID)
-  const password = dataUser.password; //getData(KEY_PASSWORD);
+const serviceGetNotificationsList = async () => {
+  const {
+    wsUrl,
+    wsGetNotificationsList,
+    applicationType,
+    KEY_DATA_USER
+  } = Constants;
+  const { uid, password } = await getData(KEY_DATA_USER);
+  console.log("uid");
+  console.log(uid);
   const url =
     wsUrl +
     wsGetNotificationsList +
@@ -130,10 +135,14 @@ const serviceGetNotificationsList = async dataUser => {
   return result;
 };
 
-const serviceGetStaffContactList = async (keyword, dataUser) => {
-  const { wsUrl, wsGetStaffContactList, applicationType } = Constants;
-  const uid = dataUser.uid; //getData(KEY_USER_ID)
-  const password = dataUser.password; //getData(KEY_PASSWORD);
+const serviceGetStaffContactList = async keyword => {
+  const {
+    wsUrl,
+    wsGetStaffContactList,
+    applicationType,
+    KEY_DATA_USER
+  } = Constants;
+  const { uid, password } = await getData(KEY_DATA_USER);
   const url =
     wsUrl +
     wsGetStaffContactList +
@@ -165,9 +174,50 @@ const serviceGetStaffContactList = async (keyword, dataUser) => {
   return result;
 };
 
+const serviceUpdateNotification = async (id) => {
+  const {
+    wsUrl,
+    wsUpdateNotification,
+    applicationType,
+    KEY_DATA_USER
+  } = Constants;
+  const { uid, password } = await getData(KEY_DATA_USER);
+  const url =
+    wsUrl +
+    wsUpdateNotification +
+    "uid=" +
+    uid +
+    "&password=" +
+    password +
+    "&id_notification=" +
+    id +
+    "&applicationtype=" +
+    applicationType;
+  let result;
+
+  // http://uat-app.mnc-insurance.com/goreact/webservice.asmx/GetAttandance?uid=18018651&password=138381813&datefrom=2018-01-01&dateto=2018-01-30&keyword=&applicationtype=PORTAL
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw Error(response.statusText);
+    }
+    const json = await response.text();
+    //setData(KEY_DATA_USER, json[0]);
+    result = json;
+  } catch (error) {
+    console.log(error);
+    result = "error";
+  }
+  console.log("result");
+  console.log(result);
+  return result;
+}
+
 export {
   ServiceLogin,
   serviceGetAttendaceList,
   serviceGetNotificationsList,
-  serviceGetStaffContactList
+  serviceGetStaffContactList,
+  serviceUpdateNotification
 };

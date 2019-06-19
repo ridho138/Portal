@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Image, StyleSheet, KeyboardAvoidingView } from "react-native";
+import { View, Image, StyleSheet, KeyboardAvoidingView, Text } from "react-native";
 import { getData, setData } from "../utils/Utils";
 import { Constants } from "../utils/Constants";
 
@@ -7,11 +7,11 @@ import { Constants } from "../utils/Constants";
 class SplashScreen extends Component {
   
   async componentDidMount() {
-    const cekUser = await getData(Constants.KEY_DATA_USER);
+    const DataLogin = await getData(Constants.KEY_DATA_USER);
     console.log("Halo test")
-    console.log(cekUser)
+    console.log(DataLogin)
     setTimeout(() => {
-      if (cekUser) {
+      if ( DataLogin && DataLogin.isLogin === "1") {
         this.props.navigation.navigate("Home");
       } else {
         this.props.navigation.navigate("Login");
@@ -28,6 +28,9 @@ class SplashScreen extends Component {
             style={styles.logo}
             source={require("../components/images/logo-white.png")}
           />
+        </View>
+        <View style={styles.footerContainer}>
+          <Text style={styles.footerText}>Version 1.0.0</Text>
         </View>
       </KeyboardAvoidingView>
     );
@@ -50,6 +53,15 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: 300,
     height: 100
+  },
+  footerContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    alignItems: "center",
+    paddingBottom: 20
+  },
+  footerText :{
+    color: "white"
   }
 });
 

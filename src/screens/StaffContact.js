@@ -17,7 +17,6 @@ import Button from "../components/components/Button";
 import StaffCOntactList from "./StaffCOntactList";
 import Loader from "../components/components/Loader";
 import { serviceGetStaffContactList } from "../utils/Services";
-import { connect } from "react-redux";
 
 class Attendance extends Component {
   constructor(props) {
@@ -36,7 +35,7 @@ class Attendance extends Component {
     });
 
     const { keyword } = this.state;
-    const getDataStaffContact = await serviceGetStaffContactList(keyword, this.props.dataLogin);
+    const getDataStaffContact = await serviceGetStaffContactList(keyword);
     //alert(getDataStaffContact[0].fullname);
     if (getDataStaffContact !== "error") {
       this.setState({
@@ -135,11 +134,4 @@ const styles = StyleSheet.create({
   }
 });
 
-const mapStateToProps = state => {
-  //console.log(state.dataLogin);
-  return {
-    dataLogin: state.dataLogin.dataLogin
-  };
-};
-
-export default connect(mapStateToProps) (Attendance);
+export default Attendance;

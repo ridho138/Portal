@@ -9,22 +9,37 @@ import {
   Alert
 } from "react-native";
 import { Constants } from "../utils/Constants";
-import { clearData, getData } from "../utils/Utils";
+import { clearData, getData, setData } from "../utils/Utils";
 import Loader from "../components/components/Loader";
 import AsyncStorage from "@react-native-community/async-storage";
 import Card from "../components/components/Card";
 import CardSection from "../components/components/CardSection";
 import Button from "../components/components/Button";
-import { connect } from "react-redux";
-import { fetchDataLogin } from "../actions/index";
 import { ServiceLogin } from "../utils/Services";
 
 class Profile extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading: false
+      loading: false,
+      FULLNAME: "",
+      EMAIL: "",
+      DEPARTMENT: "",
+      POSITION: ""
     };
+  }
+
+  componentDidMount = async () => {
+    const Profile  = await getData(Constants.KEY_DATA_USER)
+    const { FULLNAME, EMAIL, DEPARTMENT, POSITION } = Profile.profile
+    this.setState({
+      FULLNAME: FULLNAME,
+      EMAIL: EMAIL,
+      DEPARTMENT: DEPARTMENT,
+      POSITION: POSITION
+    })
+    console.log("Profile")
+    console.log(Profile.profile)
   }
 
   onButtonPress = async () => {
@@ -32,48 +47,59 @@ class Profile extends Component {
       loading: true
     });
 
-    await clearData(Constants.KEY_DATA_USER);
-    await clearData("fcmToken");
+    // this.setState({
+    //   loading: false
+    // });
+    // await clearData(Constants.KEY_DATA_USER);
+    // await clearData("fcmToken");
+    // this.props.navigation.navigate("Login");
 
-    const { uid, password, rememberMe } = this.props.dataLogin;
+    const { uid, password, rememberMe } = await getData(
+      Constants.KEY_DATA_USER
+    );
 
+    console.log("rememberMe")
+    console.log(rememberMe)
     let dataUser = {
       uid: uid,
       password: password,
       registrationId: "",
-      rememberMe: true
+      rememberMe: rememberMe
     };
     const logout = await ServiceLogin(dataUser, "0");
-
-    if (!rememberMe) {
-      dataUser = {
-        uid: "",
-        password: "",
-        registrationId: "",
-        rememberMe: false
-      };
-    }
 
     if (logout.status === "SUCCESS") {
       this.setState({
         loading: false
       });
-
-      this.props.dispatch(fetchDataLogin(dataUser));
-
+      // await setData(Constants.KEY_DATA_LOGIN, JSON.stringify(dataUser))
+      // await clearData(Constants.KEY_DATA_USER);
+      await clearData("fcmToken");
       this.props.navigation.navigate("Login");
     } else {
-      Alert.alert("Error", login);
+      Alert.alert("Error", logout);
     }
   };
 
-  renderDataProfile = async () => {
-    const user = await getData(Constants.KEY_DATA_USER);
-    return user;
-  };
+  // renderDataProfile = async () => {
+  //   const { FULLNAME, EMAIL, DEPARTMENT, POSITION } = await getData(
+  //     Constants.KEY_DATA_USER
+  //   );
+  //   return (
+  //     <View style={styles.rightContent}>
+  //       <Text style={styles.name}>{FULLNAME}</Text>
+  //       <Text style={styles.userInfo}>{EMAIL}</Text>
+  //       <Text style={styles.userInfo}>
+  //         {DEPARTMENT} / {POSITION}
+  //       </Text>
+  //     </View>
+  //   );
+  // };
 
   render() {
-    const { FULLNAME, EMAIL, DEPARTMENT, POSITION } = this.props.dataProfile
+    const { FULLNAME, EMAIL, DEPARTMENT, POSITION } = this.state
+
+    //console.log(FULLNAME)
     return (
       <Card>
         <CardSection>
@@ -86,12 +112,12 @@ class Profile extends Component {
                 }}
               />
             </View>
+            
             <View style={styles.rightContent}>
               <Text style={styles.name}>{FULLNAME}</Text>
               <Text style={styles.userInfo}>{EMAIL}</Text>
               <Text style={styles.userInfo}>
-                {DEPARTMENT} /{" "}
-                {POSITION}
+                {DEPARTMENT} / {POSITION}
               </Text>
             </View>
           </View>
@@ -140,12 +166,4 @@ const styles = StyleSheet.create({
   }
 });
 
-const mapStateToProps = state => {
-  //console.log(state.dataLogin);
-  return {
-    dataLogin: state.dataLogin.dataLogin,
-    dataProfile: state.dataProfile.dataProfile
-  };
-};
-
-export default connect(mapStateToProps)(Profile);
+export default Profile;

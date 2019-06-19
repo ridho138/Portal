@@ -5,27 +5,30 @@ const setData = async (key, value) => {
   try {
     const isExist = await AsyncStorage.getItem(key);
     let checkData = JSON.parse(isExist);
-    if (!checkData) {
-      await AsyncStorage.setItem(key, value)
-        .then(() => {
-          console.log("It was saved successfully");
-        })
-        .catch(() => {
-          console.log("There was an error saving the product");
-        });
+
+    if (checkData) {
+      await clearData(key);
     }
+
+    await AsyncStorage.setItem(key, value)
+      .then(() => {
+        console.log("It was saved successfully");
+      })
+      .catch(() => {
+        console.log("There was an error saving the product");
+      });
   } catch (error) {
-    console.log(error);
+    console.log(`setData --> ${error}`);
   }
 };
 
 const getData = async key => {
   try {
     const Data = await AsyncStorage.getItem(key);
-    const DataJSON = JSON.parse(Data)
+    const DataJSON = JSON.parse(Data);
     return DataJSON;
   } catch (error) {
-    console.log(error);
+    console.log(`getData --> ${error}`);
   }
 };
 
@@ -37,28 +40,48 @@ const clearData = async key => {
   }
 };
 
-const toDateTime = (date) => {
-  let result = "-"
-  if(date !== null){
-    result = moment(date).format("D-MMM-YYYY, H:mm:ss")
+const toDateTime = date => {
+  let result = "-";
+  if (date !== null) {
+    result = moment(date).format("D-MMM-YYYY, H:mm:ss");
   }
-  return result
-}
+  return result;
+};
 
-const toDate = (date) => {
-  let result = "-"
-  if(date !== null){
-    result = moment(date).format("D-MMM-YYYY")
+const toDate = date => {
+  let result = "-";
+  if (date !== null) {
+    result = moment(date).format("D-MMM-YYYY");
   }
-  return result
-}
+  return result;
+};
 
-const toTime = (date) => {
-  let result = "-"
-  if(date !== null){
-    result = moment(date).format("H:mm:ss")
+const toTime = date => {
+  let result = "-";
+  if (date !== null) {
+    result = moment(date).format("H:mm:ss");
   }
-  return result
-}
+  return result;
+};
 
-export { setData, getData, clearData, toDateTime, toDate, toTime };
+const tes = async () => {
+  const Datax = await AsyncStorage.getItem("KEY_NOTIF");
+  return Datax;
+};
+
+const notifCount = () => {
+  //let x = 3
+  AsyncStorage.getItem("KEY_NOTIF").then(value => {
+    console.log("Datax");
+    console.log(value);
+    return value;
+  });
+
+  // if(Datax){
+  //   x = Datax
+  // }
+  //const Data = 17
+  //return x;
+};
+
+export { setData, getData, clearData, toDateTime, toDate, toTime, notifCount };
