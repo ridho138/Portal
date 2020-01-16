@@ -213,7 +213,7 @@ class Home extends Component {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.card}
-            onPress={() => this.onMenuPress("")}
+            onPress={() => this.onMenuPress("Approval")}
           >
             <View>
               <View
@@ -223,7 +223,7 @@ class Home extends Component {
                   marginBottom: 15
                 }}
               >
-                <Icon name="users" color="#06397B" size={30}>
+                <Icon name="tasks" color="#06397B" size={30}>
                   {/* <Text>Daily Production</Text>     */}
                 </Icon>
               </View>
@@ -234,7 +234,7 @@ class Home extends Component {
                   flexWrap: "wrap"
                 }}
               >
-                <Text style={styles.textTitle}>Claim Partner</Text>
+                <Text style={styles.textTitle}>Approval</Text>
               </View>
             </View>
           </TouchableOpacity>

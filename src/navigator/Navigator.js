@@ -17,6 +17,9 @@ import Profile from "../screens/Profile";
 import Attendance from "../screens/Attendance";
 import StaffContact from "../screens/StaffContact";
 import NotificationDetail from "../screens/NotificationDetail"
+import Approval from "../screens/Approval"
+import ApprovalDetail from "../screens/ApprovalDetail"
+import ApprovalEntertain from "../screens/ApproveEntertain"
 import withBadge from "../components/components/withBadge";
 import { notifCount } from "../utils/Utils"
 
@@ -127,7 +130,10 @@ const AppStackNavigator = createStackNavigator(
     },
     Attendance: { screen: Attendance },
     "Staff Contact": { screen: StaffContact },
-    "News Detail": { screen: NotificationDetail }
+    "News Detail": { screen: NotificationDetail },
+    Approval: { screen: Approval },
+    "Approval Request": { screen: ApprovalDetail},
+    "Approval Entertain": { screen: ApprovalEntertain}
   },
   {
     defaultNavigationOptions: ({ navigation }) => {

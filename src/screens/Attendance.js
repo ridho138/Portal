@@ -78,6 +78,11 @@ class Attendance extends Component {
       if (this.state.dataAbsen.length !== 0) {
         return (
           <Card>
+          <CardSection>
+              <Text style={styles.textStyle}>
+                Total Late : {this.state.late}
+              </Text>
+            </CardSection>
             <CardSection>
               <FlatList
                 //style={{ paddingBottom: 20 }}
@@ -99,7 +104,7 @@ class Attendance extends Component {
     return (
       <View style={{ flex: 1, flexDirection: "column" }}>
         <Loader loading={this.state.loading} />
-        <View style={{ flex: 2 }}>
+        <View style={{ flex: 2, justifyContent: "center" }}>
           <Card>
             <CardSection>
               <View style={styles.datePickerContainer}>
@@ -150,7 +155,7 @@ class Attendance extends Component {
             </CardSection>
           </Card>
         </View>
-        <View style={{ flex: 1, justifyContent: "center" }}>
+        {/* <View style={{ flex: 1, justifyContent: "center" }}>
           <Card>
             <CardSection>
               <Text style={styles.textStyle}>
@@ -158,8 +163,8 @@ class Attendance extends Component {
               </Text>
             </CardSection>
           </Card>
-        </View>
-        <View style={{ flex: 7 }}>{this.renderDataAbsen()}</View>
+        </View> */}
+        <View style={{ flex: 8, justifyContent: "flex-start" }}>{this.renderDataAbsen()}</View>
 
         {/* <ScrollView style={{ paddingBottom: 15 }}>
           {this.renderDataAbsen()}

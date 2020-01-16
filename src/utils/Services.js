@@ -1,43 +1,54 @@
 import { Constants } from "./Constants";
-import { setData, getData } from "./Utils";
+import { setData, getData, setEnvelope } from "./Utils";
+import axios from "axios";
+import { parseString } from "react-native-xml2js";
 
 const ServiceLogin = async (dataUser, isLogin) => {
   const { wsUrl, wsLogin, applicationType, KEY_DATA_USER } = Constants;
 
   const { uid, password, registrationId } = dataUser;
 
-  const url =
-    wsUrl +
-    wsLogin +
-    "uid=" +
-    uid +
-    "&password=" +
-    password +
-    "&registrationId=" +
-    registrationId +
-    "&isLogin=" +
-    isLogin +
-    "&applicationtype=" +
-    applicationType;
-  //const url = 'http://uat-app.mnc-insurance.com/goreact/webservice.asmx/Login?uid=18018651&password=138381813&registrationId=&applicationtype=PORTAL'
+  let result;
 
-  let result = {};
-
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw Error(response.statusText);
+  const data = [
+    {
+      name: "uid",
+      value: uid
+    },
+    {
+      name: "password",
+      value: password
+    },
+    {
+      name: "registrationId",
+      value: registrationId
+    },
+    {
+      name: "isLogin",
+      value: isLogin
+    },
+    {
+      name: "applicationtype",
+      value: applicationType
     }
-    const json = await response.json();
+  ];
 
-    if (json[0] != null || json != "") {
+  const envelope = await setEnvelope(wsLogin, data);
+  try {
+    let responseAxios = await axios.post(wsUrl, envelope, {
+      headers: { "Content-Type": "application/soap+xml" }
+    });
+    let data = await responseAxios.data;
+    let dataSplit = data.split("<?xml");
+    let resp = JSON.parse(dataSplit[0]);
+
+    if (resp[0] !== "" && resp[0] !== undefined) {
       result = {
         ...dataUser,
         isLogin: isLogin,
         status: "SUCCESS",
-        profile: json[0]
+        profile: resp[0]
       };
-      
       await setData(KEY_DATA_USER, JSON.stringify(result));
     } else {
       result = {
@@ -46,11 +57,9 @@ const ServiceLogin = async (dataUser, isLogin) => {
     }
   } catch (error) {
     result = {
-      status: "Something went wrong. Please check your NIK/Password"
+      status: JSON.stringify(error)
     };
   }
-  console.log("result");
-  console.log(result);
   return result;
 };
 
@@ -62,37 +71,54 @@ const serviceGetAttendaceList = async (datefrom, dateto) => {
     KEY_DATA_USER
   } = Constants;
   const { uid, password } = await getData(KEY_DATA_USER);
-  const url =
-    wsUrl +
-    wsGetAttendanceList +
-    "uid=" +
-    uid +
-    "&password=" +
-    password +
-    "&datefrom=" +
-    datefrom +
-    "&dateto=" +
-    dateto +
-    "&keyword=" +
-    "&applicationtype=" +
-    applicationType;
+
   let result;
 
-  // http://uat-app.mnc-insurance.com/goreact/webservice.asmx/GetAttandance?uid=18018651&password=138381813&datefrom=2018-01-01&dateto=2018-01-30&keyword=&applicationtype=PORTAL
+  const data = [
+    {
+      name: "uid",
+      value: uid
+    },
+    {
+      name: "password",
+      value: password
+    },
+    {
+      name: "datefrom",
+      value: datefrom
+    },
+    {
+      name: "dateto",
+      value: dateto
+    },
+    {
+      name: "keyword",
+      value: ""
+    },
+    {
+      name: "applicationtype",
+      value: applicationType
+    }
+  ];
+
+  const envelope = await setEnvelope(wsGetAttendanceList, data);
 
   try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw Error(response.statusText);
+    let responseAxios = await axios.post(wsUrl, envelope, {
+      headers: { "Content-Type": "application/soap+xml" }
+    });
+    let data = await responseAxios.data;
+    let dataSplit = data.split("<?xml");
+    let resp = JSON.parse(dataSplit[0]);
+
+    if (resp[0] !== "" && resp[0] !== undefined) {
+      result = resp;
+    } else {
+      result = "error";
     }
-    const json = await response.json();
-    //setData(KEY_DATA_USER, json[0]);
-    result = json;
   } catch (error) {
-    console.log(error);
     result = "error";
   }
-
   return result;
 };
 
@@ -104,34 +130,41 @@ const serviceGetNotificationsList = async () => {
     KEY_DATA_USER
   } = Constants;
   const { uid, password } = await getData(KEY_DATA_USER);
-  console.log("uid");
-  console.log(uid);
-  const url =
-    wsUrl +
-    wsGetNotificationsList +
-    "uid=" +
-    uid +
-    "&password=" +
-    password +
-    "&applicationtype=" +
-    applicationType;
+
   let result;
 
-  // http://uat-app.mnc-insurance.com/goreact/webservice.asmx/GetAttandance?uid=18018651&password=138381813&datefrom=2018-01-01&dateto=2018-01-30&keyword=&applicationtype=PORTAL
-
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw Error(response.statusText);
+  const data = [
+    {
+      name: "uid",
+      value: uid
+    },
+    {
+      name: "password",
+      value: password
+    },
+    {
+      name: "applicationtype",
+      value: applicationType
     }
-    const json = await response.json();
-    //setData(KEY_DATA_USER, json[0]);
-    result = json;
+  ];
+
+  const envelope = await setEnvelope(wsGetNotificationsList, data);
+  try {
+    let responseAxios = await axios.post(wsUrl, envelope, {
+      headers: { "Content-Type": "application/soap+xml" }
+    });
+    let data = await responseAxios.data;
+    let dataSplit = data.split("<?xml");
+    let resp = JSON.parse(dataSplit[0]);
+
+    if (resp[0] !== "" && resp[0] !== undefined) {
+      result = resp;
+    } else {
+      result = "error";
+    }
   } catch (error) {
-    console.log(error);
     result = "error";
   }
-
   return result;
 };
 
@@ -143,38 +176,49 @@ const serviceGetStaffContactList = async keyword => {
     KEY_DATA_USER
   } = Constants;
   const { uid, password } = await getData(KEY_DATA_USER);
-  const url =
-    wsUrl +
-    wsGetStaffContactList +
-    "uid=" +
-    uid +
-    "&password=" +
-    password +
-    "&keyword=" +
-    keyword +
-    "&applicationtype=" +
-    applicationType;
+
   let result;
 
-  // http://uat-app.mnc-insurance.com/goreact/webservice.asmx/GetAttandance?uid=18018651&password=138381813&datefrom=2018-01-01&dateto=2018-01-30&keyword=&applicationtype=PORTAL
-
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw Error(response.statusText);
+  const data = [
+    {
+      name: "uid",
+      value: uid
+    },
+    {
+      name: "password",
+      value: password
+    },
+    {
+      name: "keyword",
+      value: keyword
+    },
+    {
+      name: "applicationtype",
+      value: applicationType
     }
-    const json = await response.json();
-    //setData(KEY_DATA_USER, json[0]);
-    result = json;
+  ];
+
+  const envelope = await setEnvelope(wsGetStaffContactList, data);
+  try {
+    let responseAxios = await axios.post(wsUrl, envelope, {
+      headers: { "Content-Type": "application/soap+xml" }
+    });
+    let data = await responseAxios.data;
+    let dataSplit = data.split("<?xml");
+    let resp = JSON.parse(dataSplit[0]);
+
+    if (resp[0] !== "" && resp[0] !== undefined) {
+      result = resp;
+    } else {
+      result = "error";
+    }
   } catch (error) {
-    console.log(error);
     result = "error";
   }
-
   return result;
 };
 
-const serviceUpdateNotification = async (id) => {
+const serviceUpdateNotification = async id => {
   const {
     wsUrl,
     wsUpdateNotification,
@@ -182,42 +226,159 @@ const serviceUpdateNotification = async (id) => {
     KEY_DATA_USER
   } = Constants;
   const { uid, password } = await getData(KEY_DATA_USER);
-  const url =
-    wsUrl +
-    wsUpdateNotification +
-    "uid=" +
-    uid +
-    "&password=" +
-    password +
-    "&id_notification=" +
-    id +
-    "&applicationtype=" +
-    applicationType;
+
   let result;
 
-  // http://uat-app.mnc-insurance.com/goreact/webservice.asmx/GetAttandance?uid=18018651&password=138381813&datefrom=2018-01-01&dateto=2018-01-30&keyword=&applicationtype=PORTAL
-
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw Error(response.statusText);
+  const data = [
+    {
+      name: "uid",
+      value: uid
+    },
+    {
+      name: "password",
+      value: password
+    },
+    {
+      name: "id_notification",
+      value: id
+    },
+    {
+      name: "applicationtype",
+      value: applicationType
     }
-    const json = await response.text();
-    //setData(KEY_DATA_USER, json[0]);
-    result = json;
+  ];
+
+  const envelope = await setEnvelope(wsUpdateNotification, data);
+  try {
+    let responseAxios = await axios.post(wsUrl, envelope, {
+      headers: { "Content-Type": "application/soap+xml" }
+    });
+    let data = await responseAxios.data;
+    let dataSplit = data.split("<?xml");
+    result = dataSplit[0]
   } catch (error) {
-    console.log(error);
     result = "error";
   }
-  console.log("result");
-  console.log(result);
   return result;
-}
+};
+
+const serviceGetApprovalList = async keyword => {
+  const {
+    wsUrl,
+    wsGetApprovalList,
+    applicationType,
+    KEY_DATA_USER
+  } = Constants;
+  const { uid, password } = await getData(KEY_DATA_USER);
+  
+  let result;
+
+  const data = [
+    {
+      name: "uid",
+      value: uid
+    },
+    {
+      name: "password",
+      value: password
+    },
+    {
+      name: "keyword",
+      value: keyword
+    },
+    {
+      name: "applicationtype",
+      value: applicationType
+    }
+  ];
+
+  const envelope = await setEnvelope(wsGetApprovalList, data);
+  try {
+    let responseAxios = await axios.post(wsUrl, envelope, {
+      headers: { "Content-Type": "application/soap+xml" }
+    });
+    let data = await responseAxios.data;
+    let dataSplit = data.split("<?xml");
+    let resp = JSON.parse(dataSplit[0]);
+
+    if (resp[0] !== "" && resp[0] !== undefined) {
+      result = resp;
+    } else {
+      result = "error";
+    }
+  } catch (error) {
+    result = "error";
+  }
+  return result;
+};
+
+const serviceUpdateApproval = async (
+  id,
+  approval_type,
+  status,
+  remarks,
+  form_type
+) => {
+  const { wsUrl, wsUpdateApproval, applicationType, KEY_DATA_USER } = Constants;
+  const { uid, password } = await getData(KEY_DATA_USER);
+  
+  let result;
+
+  const data = [
+    {
+      name: "uid",
+      value: uid
+    },
+    {
+      name: "password",
+      value: password
+    },
+    {
+      name: "approval_id",
+      value: id
+    },
+    {
+      name: "approval_type",
+      value: approval_type
+    },
+    {
+      name: "status",
+      value: status
+    },
+    {
+      name: "remarks",
+      value: remarks
+    },
+    {
+      name: "formType",
+      value: form_type
+    },
+    {
+      name: "applicationtype",
+      value: applicationType
+    }
+  ];
+
+  const envelope = await setEnvelope(wsUpdateApproval, data);
+  try {
+    let responseAxios = await axios.post(wsUrl, envelope, {
+      headers: { "Content-Type": "application/soap+xml" }
+    });
+    let data = await responseAxios.data;
+    let dataSplit = data.split("<?xml");
+    result = dataSplit[0]
+  } catch (error) {
+    result = "error";
+  }
+  return result;
+};
 
 export {
   ServiceLogin,
   serviceGetAttendaceList,
   serviceGetNotificationsList,
   serviceGetStaffContactList,
-  serviceUpdateNotification
+  serviceUpdateNotification,
+  serviceGetApprovalList,
+  serviceUpdateApproval
 };

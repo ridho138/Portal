@@ -37,11 +37,11 @@ class Login extends Component {
   async componentDidMount() {
     this.checkPermission();
     console.log("cek -> componentDidMount");
-    
-    const dataLogin = await getData(Constants.KEY_DATA_USER)
+
+    const dataLogin = await getData(Constants.KEY_DATA_USER);
     console.log("dataLogin");
     console.log(dataLogin);
-    if(dataLogin){
+    if (dataLogin) {
       if (dataLogin.rememberMe) {
         this.setState({
           uid: dataLogin.uid,
@@ -50,8 +50,6 @@ class Login extends Component {
         });
       }
     }
-
-
   }
 
   async checkPermission() {
@@ -102,7 +100,6 @@ class Login extends Component {
   }
 
   onButtonPress = async () => {
-    
     this.setState({
       loading: true
     });
@@ -116,13 +113,14 @@ class Login extends Component {
         registrationId: registrationId,
         rememberMe: checked
       };
-
+      //console.log(dataUser);
       const login = await ServiceLogin(dataUser, "1");
       this.setState({
         loading: false
       });
+      console.log("login.profile")
+      console.log(login.profile)
       if (login.status === "SUCCESS") {
-        
         this.props.navigation.navigate("Home");
       } else {
         Alert.alert("Error", login.status);

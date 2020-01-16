@@ -5,7 +5,9 @@ import {
   FETCH_DATA_LOGIN,
   FETCH_PROFILE,
   FETCH_NOTIFICATION,
-  FETCH_NOTIFICATION_HEADER
+  FETCH_NOTIFICATION_HEADER,
+  FETCH_APPROVAL,
+  FETCH_APPROVAL_LIST
 } from "../actions/index";
 
 export const data = (
@@ -93,11 +95,25 @@ export const dataNotification = (state = { data: {} }, action) => {
   }
 };
 
+export const dataApproval = (state = { data: {} }, action) => {
+  switch (action.type) {
+    case `${FETCH_APPROVAL}`:
+      return {
+        ...state,
+        data: action.payload
+      };
+
+    default:
+      return state;
+  }
+};
+
 const rootReducer = combineReducers({
   dataLogin: dataLogin,
   dataProfile: dataProfile,
   dataNotificationHeader: dataNotificationHeader,
-  dataNotification: dataNotification
+  dataNotification: dataNotification,
+  dataApproval: dataApproval
 });
 
 export default rootReducer;

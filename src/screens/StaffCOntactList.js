@@ -10,15 +10,18 @@ const StaffContactList = ({ dataStaffContact }) => {
     email,
     department,
     position,
-    line_ext
+    line_ext,
+    BIT
   } = dataStaffContact;
+  const img = BIT === "" ? "https://bootdey.com/img/Content/avatar/avatar6.png" : `data:image/png;base64,${BIT}`
   return (
     <View style={styles.container}>
       <View style={styles.leftContent}>
         <Image
           style={styles.avatar}
           source={{
-            uri: "https://bootdey.com/img/Content/avatar/avatar6.png"
+            uri: img
+            //uri: "https://bootdey.com/img/Content/avatar/avatar6.png"
           }}
         />
       </View>
@@ -35,89 +38,10 @@ const StaffContactList = ({ dataStaffContact }) => {
       </View>
     </View>
 
-    // <Card>
-    // <View style={styles.container}>
-    //   <View style={styles.contentTitle}>
-    //     <Text style={styles.textStyle}>NIK</Text>
-    //   </View>
-    //   <View style={styles.content}>
-    //     <Text style={styles.textStyle}>{ucode}</Text>
-    //   </View>
-    //   <View style={styles.contentTitle}>
-    //     <Text style={styles.textStyle}>Name</Text>
-    //   </View>
-    //   <View style={styles.content}>
-    //     <Text style={styles.textStyle}>{fullname}</Text>
-    //   </View>
-    //   <View style={styles.contentTitle}>
-    //     <Text style={styles.textStyle}>Branch</Text>
-    //   </View>
-    //   <View style={styles.content}>
-    //     <Text style={styles.textStyle}>{branch}</Text>
-    //   </View>
-    //   <View style={styles.contentTitle}>
-    //     <Text style={styles.textStyle}>Department</Text>
-    //   </View>
-    //   <View style={styles.content}>
-    //     <Text style={styles.textStyle}>{department}</Text>
-    //   </View>
-    //   <View style={styles.contentTitle}>
-    //     <Text style={styles.textStyle}>Position</Text>
-    //   </View>
-    //   <View style={styles.content}>
-    //     <Text style={styles.textStyle}>{position}</Text>
-    //   </View>
-    //   <View style={styles.contentTitle}>
-    //     <Text style={styles.textStyle}>Email</Text>
-    //   </View>
-    //   <View style={styles.content}>
-    //     <Text style={styles.textStyle}>{email}</Text>
-    //   </View>
-    //   <View style={styles.contentTitle}>
-    //     <Text style={styles.textStyle}>Mobile No.</Text>
-    //   </View>
-    //   <View style={styles.content}>
-    //     <Text style={styles.textStyle}>{mobile_no}</Text>
-    //   </View>
-    //   <View style={styles.contentTitle}>
-    //     <Text style={styles.textStyle}>Line Ext.</Text>
-    //   </View>
-    //   <View style={styles.content}>
-    //     <Text style={styles.textStyle}>{line_ext}</Text>
-    //   </View>
-    // </View>
-    // </Card>
   );
 };
 
 const styles = StyleSheet.create({
-  // container: {
-  //   // alignItems: "center",
-  //   flex: 1,
-  //   flexDirection: "row",
-  //   flexWrap: "wrap"
-  //   // borderBottomWidth: 1,
-  //   // borderColor: "#CCCCCC"
-  //   //borderBottom
-  //   // backgroundColor: "blue"
-  // },
-  // content: {
-  //   width: Dimensions.get("window").width / 4 - 10,
-  //   padding: 5,
-  // },
-  // contentTitle: {
-  //   width: "30%",
-  //   padding: 5
-  // },
-  // content: {
-  //   width: "70%",
-  //   padding: 5
-  // },
-  // textStyle: {
-  //   color: "#06397B",
-  //   fontSize: 13,
-  //   fontWeight: "300"
-  // }
   container: {
     flex: 1,
     flexDirection: "row",

@@ -10,18 +10,14 @@ import {
   ScrollView,
   RefreshControl
 } from "react-native";
-import { Badge } from "react-native-elements";
 import {
   serviceGetNotificationsList,
   serviceUpdateNotification
 } from "../utils/Services";
 import Loader from "../components/components/Loader";
-import Card from "../components/components/Card";
-import CardSection from "../components/components/CardSection";
 import { toDateTime } from "../utils/Utils";
-import AsyncStorage from "@react-native-community/async-storage";
 import { connect } from "react-redux";
-import { fetchNotificationHeader, fetchNotification } from "../actions/index";
+import { fetchNotification } from "../actions/index";
 
 class Notification extends Component {
   constructor(props) {
@@ -38,18 +34,11 @@ class Notification extends Component {
   }
 
   getNotificationList = async () => {
-    //this.props.dispatch(fetchNotificationHeader())
-    
-    // this.setState({
-    //   loading: true
-    // });
     const NotificationList = await serviceGetNotificationsList();
     if (NotificationList !== "error") {
-      // await AsyncStorage.setItem("KEY_NOTIF", "8")
       this.setState({ DataNotifications: NotificationList });
     }
     this.setState({
-      // loading: false,
       refreshing: false
     });
   };
@@ -60,10 +49,9 @@ class Notification extends Component {
   };
 
   onButtonPress = async item => {
-    //alert(item.TITLE);
     this.setState({
       loading: true
-    })
+    });
 
     if (item.ISREAD === "0") {
       const updateNotif = await serviceUpdateNotification(item.ID);
@@ -77,7 +65,7 @@ class Notification extends Component {
 
     this.setState({
       loading: false
-    })
+    });
 
     this.props.navigation.navigate("News Detail");
   };
@@ -94,9 +82,7 @@ class Notification extends Component {
           style={
             ISREAD == "0" ? styles.leftContentNRead : styles.leftContentRead
           }
-        >
-          {/* <Badge status="primary" /> */}
-        </View>
+        />
         <View style={styles.rightContent}>
           <Text style={styles.title}>{TITLE} </Text>
           <Text style={styles.date}>{toDateTime(DATE)}</Text>
@@ -105,10 +91,7 @@ class Notification extends Component {
     );
   };
 
-
   render() {
-    console.log("this.state.DataNotifications")
-    console.log(this.state.DataNotifications)
     return (
       <ScrollView
         refreshControl={
@@ -171,13 +154,5 @@ const styles = StyleSheet.create({
     paddingLeft: 5
   }
 });
-
-// const mapStateToProps = state => {
-//   console.log("state")
-//   console.log(state)
-//   return {
-//     notifHeaderResult: state.dataNotificationHeader.data
-//   };
-// };
 
 export default connect()(Notification);
